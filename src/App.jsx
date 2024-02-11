@@ -215,7 +215,7 @@ const App = () => {
       <form id='form-editar' onSubmit={() => updateProduct(product2.id)} autocomplete="off">
         <div class='caja'>
           <label>Nombre:</label>
-          <inpu
+          <input
             type="text"
             name="name"
             onChange={handleChange2}
