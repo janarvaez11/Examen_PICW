@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './createClient';
-import html2canvas from 'html2canvas';
+import 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const App = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -97,29 +99,50 @@ const App = () => {
   }
 
   const generatePDF = () => {
-    const pdfContent = document.getElementById('pdf-content');
+    const pdf = new jsPDF();
+    let yPos = 10; // Posición vertical inicial
+    const date = new Date().toLocaleDateString();
+    const time = new Date().toLocaleTimeString();
+    const columnas = ['Id', 'Producto', 'Cantidad', 'Precio', 'Categoria']; // Encabezados de la tabla
+    const data = products.map((product) => [product.id, product.name, product.quantity, '$' + product.price, product.category]); // Contenido de la tabla
 
-    // Guardar el estilo actual y mostrar el elemento temporalmente
-    const prevDisplayStyle = pdfContent.style.display;
-    pdfContent.style.display = 'block';
+    // Imprimir encabezados de la tabla
+    pdf.setFontSize(14); // Establecer el tamaño de fuente
+    pdf.text('Informe de Productos', 80, yPos);
+    yPos += 10; // Aumentamos la posición vertical para la siguiente línea
+    pdf.setFontSize(10); // Establecer el tamaño de fuente
+    pdf.text('Fecha: ' + new Date().toLocaleDateString(), 10, yPos);
+    yPos += 10;
+    pdf.text('Hora: ' + new Date().toLocaleTimeString(), 10, yPos);
+    yPos += 10;
 
-    html2canvas(pdfContent).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
+    pdf.autoTable({
+      startY: yPos,
+      head: [columnas],
+      body: data,
+    })
 
-      // Crear un nuevo objeto jsPDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const width = pdf.internal.pageSize.getWidth();
-      const height = pdf.internal.pageSize.getHeight();
-
-      // Agregar la imagen al PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-
-      // Guardar el PDF con el nombre 'informe.pdf'
-      pdf.save('informe.pdf');
-
-      // Restaurar el estilo original después de generar el PDF
-      pdfContent.style.display = prevDisplayStyle;
-    });
+    /*
+        // Imprimir información de cada producto
+        products.forEach((product) => {
+    
+          yPos += 10; // Aumentar la posición vertical para la siguiente línea
+          pdf.text(`ID: ${product.id}`, 15, yPos); // ID del producto
+      
+          yPos += 10;
+          pdf.text(`Nombre: ${product.name}`, 15, yPos); // Nombre del producto
+      
+          yPos += 10;
+          pdf.text(`Precio: ${product.price}`, 15, yPos); // Precio del producto
+    
+          yPos += 10;
+          pdf.text(`Categoria: ${product.category}`, 15, yPos); // Precio del producto
+    
+          yPos += 10;
+          pdf.text(`Cantidad: ${product.quantity}`, 15, yPos); // Precio del producto
+        });
+      */
+    pdf.save(`informe_F:${date}_H:${time}.pdf`);
   };
 
   const handleSearch = (event) => {
@@ -165,107 +188,118 @@ const App = () => {
     <div>
       {/* CREAR LOS PRODUCTOS */}
       {/* FORM 1 */}
-      <form onSubmit={createProduct}>
-        <input type="text" placeholder="Producto" name="name" onChange={handleChange} />
-        <input type="text" placeholder="Cantidad Total" name="quantity" onChange={handleChange} />
-        <input type="text" placeholder="Precio Unitario" name="price" onChange={handleChange} />
-        <select name="category" onChange={handleChange}>
-          <option value="" disabled selected>
-            Selecciona una categoría
-          </option>
-          <option value="alimentos">Alimentos</option>
-          <option value="bebidas">Bebidas</option>
-          <option value="limpieza">Articulos de Limpieza</option>
-          <option value="tecnologia">Electronicos</option>
-          <option value="herramientas">Herramientas</option>
-        </select>
-        <button type="submit">Crear Producto</button>
+      <form onSubmit={createProduct} autocomplete="off">
+        <div class='caja'>
+          <label>Producto:</label>
+          <input required type="text" name="name" onChange={handleChange} />
+          <label>Cantidad:</label>
+          <input required type="text" name="quantity" onChange={handleChange} />
+          <label>Precio:</label>
+          <input required type="text" name="price" onChange={handleChange} />
+          <label>Categoria:</label>
+          <select required name="category" onChange={handleChange}>
+            <option value="" disabled selected>
+              Selecciona una categoría
+            </option>
+            <option value="alimentos">Alimentos</option>
+            <option value="bebidas">Bebidas</option>
+            <option value="limpieza">Articulos de Limpieza</option>
+            <option value="tecnologia">Electronicos</option>
+            <option value="herramientas">Herramientas</option>
+          </select>
+        </div>
+        <button class="submit" type="submit">Crear Producto</button>
       </form>
 
       {/* FORM 2 */}
-      <form onSubmit={() => updateProduct(product2.id)}>
-        <input
-          type="text"
-          placeholder="Producto a editar"
-          name="name"
-          onChange={handleChange2}
-          defaultValue={product2.name}
-        />
-        <input
-          type="text"
-          placeholder="Cantidad a editar"
-          name="quantity"
-          onChange={handleChange2}
-          defaultValue={product2.quantity}
-        />
-        <input
-          type="text"
-          placeholder="Precio a editar"
-          name="price"
-          onChange={handleChange2}
-          defaultValue={product2.price}
-        />
-
-        {/* Nuevo campo de categoría en el formulario de edición */}
-        <select name="category" onChange={handleChange2} defaultValue={product2.category}>
-          <option value="" disabled selected>
-            Selecciona una categoría
-          </option>
-          <option value="alimentos">Alimentos</option>
-          <option value="bebidas">Bebidas</option>
-          <option value="limpieza">Articulos de Limpieza</option>
-          <option value="tecnologia">Electronicos</option>
-          <option value="herramientas">Herramientas</option>
-        </select>
-
-        <button type="submit">Guardar Cambios</button>
+      <form id='form-editar' onSubmit={() => updateProduct(product2.id)} autocomplete="off">
+        <div class='caja'>
+          <label>Nombre:</label>
+          <inpu
+            type="text"
+            name="name"
+            onChange={handleChange2}
+            defaultValue={product2.name}
+          />
+          <label>Cantidad:</label>
+          <input
+            type="text"
+            name="quantity"
+            onChange={handleChange2}
+            defaultValue={product2.quantity}
+          />
+          <label>Precio:</label>
+          <input
+            type="text"
+            name="price"
+            onChange={handleChange2}
+            defaultValue={product2.price}
+          />
+          <label>Categoria:</label>
+          {/* Nuevo campo de categoría en el formulario de edición */}
+          <select name="category" onChange={handleChange2} defaultValue={product2.category}>
+            <option value="" disabled selected>
+              Selecciona una categoría
+            </option>
+            <option value="alimentos">Alimentos</option>
+            <option value="bebidas">Bebidas</option>
+            <option value="limpieza">Articulos de Limpieza</option>
+            <option value="tecnologia">Electronicos</option>
+            <option value="herramientas">Herramientas</option>
+          </select>
+        </div>
+        <button class="submit" type="submit">Guardar Cambios</button>
       </form>
 
-      {/* Botón para generar informe en PDF */}
-      <button onClick={generatePDF}>Generar Informe PDF</button>
-
-      {/* Búsqueda por nombre */}
-      <form>
-        <input
-          type="text"
-          placeholder="Buscar por nombre"
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-        <button type="button" onClick={searchProduct}>
-          Buscar
-        </button>
-      </form>
-
-      {/* Búsqueda por categoría */}
-      <form>
-        <select name="category" onChange={handleCategoryChange} value={selectedCategory}>
-          <option value="" disabled selected>
-            Selecciona una categoría para filtrar
-          </option>
-          <option value="alimentos">Alimentos</option>
-          <option value="bebidas">Bebidas</option>
-          <option value="limpieza">Articulos de Limpieza</option>
-          <option value="tecnologia">Electronicos</option>
-          <option value="herramientas">Herramientas</option>
-        </select>
-      </form>
-
-      {/* Botón para listar todos los productos */}
-      <button onClick={listAllProducts}>Listar Todos</button>
 
       {/* Mensaje de error */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
       {/*VISTA DEL SISTEMA*/}
-      <div id="system-content">
-        <table>
+      <div class="tablita">
+        <table class="tabla" id="tabla">
           <thead>
             <tr>
+              <th colspan="2" class="submit1">
+                {/* Búsqueda por nombre */}
+                <form autocomplete="off">
+                  <input
+                    class="search-input"
+                    required
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearch}
+                  />
+                  <button class="search1" type="button" onClick={searchProduct}>
+                    <i class="fas fa-search"></i>
+                  </button>
+                </form>
+              </th>
+              <th colspan="2" class="submit1">
+                {/* Botón para listar todos los productos */}
+                <button class="submit3" onClick={listAllProducts}>Listar Todos</button>
+              </th>
+              <th colspan="2" class="submit1">
+                {/* Búsqueda por categoría */}
+                <form autocomplete="off">
+                  <select name="category" onChange={handleCategoryChange} value={selectedCategory}>
+                    <option value="" disabled selected>
+                      Selecciona una categoría
+                    </option>
+                    <option value="alimentos">Alimentos</option>
+                    <option value="bebidas">Bebidas</option>
+                    <option value="limpieza">Articulos de Limpieza</option>
+                    <option value="tecnologia">Electronicos</option>
+                    <option value="herramientas">Herramientas</option>
+                  </select>
+                </form>
+              </th>
+            </tr>
+            <tr class="table-primary">
               <th>Id</th>
               <th>Producto</th>
               <th>Cantidad</th>
-              <th>Precio</th>
+              <th>Precio $</th>
               <th>Categoria</th>
               <th>Acciones</th>
             </tr>
@@ -276,37 +310,22 @@ const App = () => {
                 <td>{product.id}</td>
                 <td>{product.name}</td>
                 <td>{product.quantity}</td>
-                <td>{product.price}</td>
+                <td>${product.price}</td>
                 <td>{product.category}</td>
                 <td>
-                  <button onClick={() => deleteProduct(product.id)}>Eliminar</button>
-                  <button onClick={() => displayProduct(product.id)}>Editar</button>
+                  <button class="submit" onClick={() => displayProduct(product.id)}>Editar</button>
+                  <button class="submit2" onClick={() => deleteProduct(product.id)}>Eliminar</button>
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
-
-      {/*VISTA DEL DOCUMENTO PDF*/}
-      <div id="pdf-content" className="hidden">
-        <table>
-          <thead>
+          <tfoot>
             <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
+              <th colspan="6" class="submit1">
+                <button class="submit3" onClick={generatePDF}>Generar PDF</button>
+              </th>
             </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id}>
-                <td>{product.name}</td>
-                <td>{product.quantity}</td>
-                <td>{product.price}</td>
-              </tr>
-            ))}
-          </tbody>
+          </tfoot>
         </table>
       </div>
     </div>
