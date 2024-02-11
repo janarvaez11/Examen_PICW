@@ -1,21 +1,38 @@
-﻿# react-supabase-crud
+> [!NOTE]  
+> El siguiente proyecto fue desarrollado por:
+> * Jilson Narváez
+> *  Angelo Olmedo
+
+ # Examen 2 - PICW  https://examen-picw.vercel.app/
 Para ejecutar este proyecto se debe:
 
-1. Clonar el repositorio con el link: https://github.com/janarvaez11/Examen_PICW.git
+1. Clonar el repositorio
+```bash	
+git clone https://github.com/janarvaez11/Examen_PICW.git
+```
 
-2. Instalar las dependencias: npm install (dentro de la carpeta examen_picw)
+2. Instalar las dependencias
 
-3. Instalar:
-   npm install jspdf
-   npm install jspdf-autotable
-   npm install bootstrap
+```bash	
+npm install
+```
+```bash	
+npm install jspdf
+```
+```bash	
+npm install jspdf-autotable
+```
+```bash	
+npm install bootstrap
+```
+```bash	
+npm install @supabase/supabase-js
+```
 
-4. instalar: npm i @supabase/supabase-js (Funcionalidad para Supabase)
-
-5. Ejecutar el servidor con: npm run dev
-
-6. El siguiente proyecto fue desarrollado por: Jilson Narváez / Angelo Olmedo
-
+3. Ejecutar el servidor:
+```bash	
+npm run dev
+```   
 # Desarrollo de la Aplicación
 
 ## Arquitectura de la Aplicación
@@ -62,7 +79,8 @@ Durante el desarrollo, se enfrentaron a algunos desafíos, entre ellos:
 - **Diseño Responsivo:**
   - Asegurar que la interfaz de usuario sea receptiva y funcione bien en diferentes tamaños de pantalla y dispositivos.
 
-## Próximos Pasos
+> [!TIP]
+> ## Próximos Pasos
 
 Para futuras mejoras, se pueden considerar:
 
