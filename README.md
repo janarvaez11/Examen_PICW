@@ -10,7 +10,9 @@ Para ejecutar este proyecto se debe:
 ```bash	
 git clone https://github.com/janarvaez11/Examen_PICW.git
 ```
-
+```bash	
+cd Examen_PICW
+```
 2. Instalar las dependencias
 
 ```bash	
